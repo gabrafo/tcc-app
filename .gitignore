@@ -1,0 +1,14 @@
+front/node_modules/
+front/.expo/
+front/dist/
+front/web-build/
+
+back/projeto-gestao-tccs/__pycache__/
+back/projeto-gestao-tccs/**/*.py[cod]
+back/projeto-gestao-tccs/.venv/
+back/projeto-gestao-tccs/venv/
+back/projeto-gestao-tccs/db.sqlite3
+back/projeto-gestao-tccs/media/
+
+.DS_Store
+*.log
