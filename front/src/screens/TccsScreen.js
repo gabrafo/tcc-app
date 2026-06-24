@@ -1,0 +1,192 @@
+import React, { useEffect, useState, useCallback } from 'react';
+import {
+  View, Text, FlatList, TouchableOpacity, StyleSheet,
+  TextInput, ActivityIndicator, RefreshControl, Alert,
+} from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import { api } from '../services/api';
+import { STATUS_MAP } from '../services/status';
+
+function StatusBadge({ status }) {
+  const s = STATUS_MAP[status] ?? STATUS_MAP[0];
+  return (
+    <View style={[styles.badge, { backgroundColor: s.bg }]}>
+      <Text style={[styles.badgeText, { color: s.color }]}>{s.label}</Text>
+    </View>
+  );
+}
+
+function TccCard({ item, onPress, onDelete }) {
+  return (
+    <TouchableOpacity style={styles.card} onPress={() => onPress(item)} activeOpacity={0.7}>
+      <View style={styles.cardHeader}>
+        <Text style={styles.cardTitle} numberOfLines={2}>{item.titulo}</Text>
+        <StatusBadge status={item.status} />
+      </View>
+      <Text style={styles.cardMeta}>Aluno: {item.aluno_nome ?? item.aluno}</Text>
+      {item.orientador_nome && (
+        <Text style={styles.cardMeta}>Orientador: {item.orientador_nome}</Text>
+      )}
+      <View style={styles.cardFooter}>
+        <Text style={styles.cardYear}>{item.ano_defesa ?? '—'}</Text>
+        <TouchableOpacity onPress={() => onDelete(item)} style={styles.deleteBtn}>
+          <Text style={styles.deleteText}>Excluir</Text>
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+export default function TccsScreen({ navigation }) {
+  const [tccs, setTccs] = useState([]);
+  const [filtered, setFiltered] = useState([]);
+  const [search, setSearch] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  async function load(isRefresh = false) {
+    try {
+      isRefresh ? setRefreshing(true) : setLoading(true);
+      const data = await api.getTccs();
+      setTccs(data);
+      setFiltered(data);
+    } catch (e) {
+      Alert.alert('Erro', e.message);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }
+
+  useFocusEffect(useCallback(() => { load(); }, []));
+
+  function handleSearch(text) {
+    setSearch(text);
+    const q = text.toLowerCase();
+    setFiltered(tccs.filter(t =>
+      t.titulo?.toLowerCase().includes(q) ||
+      String(t.aluno_nome ?? t.aluno ?? '').toLowerCase().includes(q)
+    ));
+  }
+
+  function handleDelete(item) {
+    Alert.alert(
+      'Excluir TCC',
+      `Deseja excluir "${item.titulo}"?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Excluir', style: 'destructive',
+          onPress: async () => {
+            try {
+              await api.deletarTcc(item.id);
+              load();
+            } catch (e) {
+              Alert.alert('Erro', e.message);
+            }
+          },
+        },
+      ]
+    );
+  }
+
+  if (loading) return <ActivityIndicator style={styles.center} size="large" color="#3B82F6" />;
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.topBar}>
+        <TextInput
+          style={styles.search}
+          placeholder="Buscar por título ou aluno..."
+          placeholderTextColor="#94A3B8"
+          value={search}
+          onChangeText={handleSearch}
+        />
+        <TouchableOpacity
+          style={styles.addBtn}
+          onPress={() => navigation.navigate('CadastrarTCC')}
+        >
+          <Text style={styles.addText}>+ Novo</Text>
+        </TouchableOpacity>
+      </View>
+
+      <FlatList
+        data={filtered}
+        keyExtractor={item => String(item.id)}
+        renderItem={({ item }) => (
+          <TccCard
+            item={item}
+            onPress={t => navigation.navigate('DetalhesTCC', { tcc: t })}
+            onDelete={handleDelete}
+          />
+        )}
+        contentContainerStyle={{ padding: 12 }}
+        ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load(true)} />}
+        ListEmptyComponent={
+          <Text style={styles.empty}>Nenhum TCC encontrado.</Text>
+        }
+      />
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#F8FAFC' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  topBar: {
+    flexDirection: 'row',
+    padding: 12,
+    gap: 8,
+    backgroundColor: '#FFF',
+    borderBottomWidth: 1,
+    borderBottomColor: '#E2E8F0',
+  },
+  search: {
+    flex: 1,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: '#1E293B',
+  },
+  addBtn: {
+    backgroundColor: '#1E3A5F',
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    justifyContent: 'center',
+  },
+  addText: { color: '#FFF', fontWeight: '700', fontSize: 14 },
+
+  card: {
+    backgroundColor: '#FFF',
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  cardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    gap: 8,
+    marginBottom: 8,
+  },
+  cardTitle: { flex: 1, fontSize: 15, fontWeight: '700', color: '#1E293B' },
+  badge: { borderRadius: 20, paddingHorizontal: 10, paddingVertical: 3 },
+  badgeText: { fontSize: 11, fontWeight: '700' },
+  cardMeta: { fontSize: 13, color: '#64748B', marginBottom: 2 },
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  cardYear: { fontSize: 12, color: '#94A3B8', fontWeight: '600' },
+  deleteBtn: { paddingHorizontal: 10, paddingVertical: 4 },
+  deleteText: { fontSize: 13, color: '#EF4444', fontWeight: '600' },
+  empty: { textAlign: 'center', color: '#94A3B8', marginTop: 60, fontSize: 15 },
+});
