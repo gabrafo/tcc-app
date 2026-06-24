@@ -4,6 +4,7 @@ import {
   TextInput, ActivityIndicator, RefreshControl, Alert,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 import { api } from '../services/api';
 import { STATUS_MAP } from '../services/status';
 
@@ -16,6 +17,15 @@ function StatusBadge({ status }) {
   );
 }
 
+function MetaRow({ icon, children }) {
+  return (
+    <View style={styles.metaRow}>
+      <Ionicons name={icon} size={14} color="#64748B" />
+      <Text style={styles.cardMeta} numberOfLines={1}>{children}</Text>
+    </View>
+  );
+}
+
 function TccCard({ item, onPress, onDelete }) {
   return (
     <TouchableOpacity style={styles.card} onPress={() => onPress(item)} activeOpacity={0.7}>
@@ -23,13 +33,17 @@ function TccCard({ item, onPress, onDelete }) {
         <Text style={styles.cardTitle} numberOfLines={2}>{item.titulo}</Text>
         <StatusBadge status={item.status} />
       </View>
-      <Text style={styles.cardMeta}>Aluno: {item.aluno_nome ?? item.aluno}</Text>
+      <MetaRow icon="school-outline">Aluno: {item.aluno_nome ?? item.aluno}</MetaRow>
       {item.orientador_nome && (
-        <Text style={styles.cardMeta}>Orientador: {item.orientador_nome}</Text>
+        <MetaRow icon="person-outline">Orientador: {item.orientador_nome}</MetaRow>
       )}
       <View style={styles.cardFooter}>
-        <Text style={styles.cardYear}>{item.ano_defesa ?? '—'}</Text>
-        <TouchableOpacity onPress={() => onDelete(item)} style={styles.deleteBtn}>
+        <View style={styles.yearPill}>
+          <Ionicons name="calendar-outline" size={13} color="#64748B" />
+          <Text style={styles.cardYear}>{item.ano_defesa ?? '-'}</Text>
+        </View>
+        <TouchableOpacity onPress={() => onDelete(item)} style={styles.deleteBtn} hitSlop={8}>
+          <Ionicons name="trash-outline" size={15} color="#DC2626" />
           <Text style={styles.deleteText}>Excluir</Text>
         </TouchableOpacity>
       </View>
@@ -90,23 +104,27 @@ export default function TccsScreen({ navigation }) {
     );
   }
 
-  if (loading) return <ActivityIndicator style={styles.center} size="large" color="#3B82F6" />;
+  if (loading) return <ActivityIndicator style={styles.center} size="large" color="#2563EB" />;
 
   return (
     <View style={styles.container}>
       <View style={styles.topBar}>
-        <TextInput
-          style={styles.search}
-          placeholder="Buscar por título ou aluno..."
-          placeholderTextColor="#94A3B8"
-          value={search}
-          onChangeText={handleSearch}
-        />
+        <View style={styles.searchWrap}>
+          <Ionicons name="search-outline" size={18} color="#64748B" />
+          <TextInput
+            style={styles.search}
+            placeholder="Buscar por título ou aluno..."
+            placeholderTextColor="#94A3B8"
+            value={search}
+            onChangeText={handleSearch}
+          />
+        </View>
         <TouchableOpacity
           style={styles.addBtn}
           onPress={() => navigation.navigate('CadastrarTCC')}
         >
-          <Text style={styles.addText}>+ Novo</Text>
+          <Ionicons name="add" size={18} color="#FFF" />
+          <Text style={styles.addText}>Novo</Text>
         </TouchableOpacity>
       </View>
 
@@ -120,11 +138,14 @@ export default function TccsScreen({ navigation }) {
             onDelete={handleDelete}
           />
         )}
-        contentContainerStyle={{ padding: 12 }}
+        contentContainerStyle={styles.listContent}
         ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load(true)} />}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load(true)} tintColor="#2563EB" />}
         ListEmptyComponent={
-          <Text style={styles.empty}>Nenhum TCC encontrado.</Text>
+          <View style={styles.emptyState}>
+            <Ionicons name="document-text-outline" size={34} color="#94A3B8" />
+            <Text style={styles.empty}>Nenhum TCC encontrado.</Text>
+          </View>
         }
       />
     </View>
@@ -132,41 +153,55 @@ export default function TccsScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8FAFC' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  container: { flex: 1, backgroundColor: '#F6F8FB' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F6F8FB' },
   topBar: {
     flexDirection: 'row',
-    padding: 12,
+    padding: 14,
     gap: 8,
     backgroundColor: '#FFF',
     borderBottomWidth: 1,
     borderBottomColor: '#E2E8F0',
   },
+  searchWrap: {
+    flex: 1,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    paddingHorizontal: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   search: {
     flex: 1,
-    backgroundColor: '#F1F5F9',
-    borderRadius: 8,
-    paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 14,
     color: '#1E293B',
   },
   addBtn: {
-    backgroundColor: '#1E3A5F',
+    backgroundColor: '#0F2742',
     borderRadius: 8,
-    paddingHorizontal: 16,
+    paddingHorizontal: 14,
     justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 4,
   },
   addText: { color: '#FFF', fontWeight: '700', fontSize: 14 },
+  listContent: { padding: 14, paddingBottom: 24 },
 
   card: {
     backgroundColor: '#FFF',
-    borderRadius: 12,
+    borderRadius: 8,
     padding: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.06,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: '#0F172A',
+    shadowOpacity: 0.04,
     shadowRadius: 6,
-    elevation: 2,
+    elevation: 1,
   },
   cardHeader: {
     flexDirection: 'row',
@@ -178,15 +213,26 @@ const styles = StyleSheet.create({
   cardTitle: { flex: 1, fontSize: 15, fontWeight: '700', color: '#1E293B' },
   badge: { borderRadius: 20, paddingHorizontal: 10, paddingVertical: 3 },
   badgeText: { fontSize: 11, fontWeight: '700' },
-  cardMeta: { fontSize: 13, color: '#64748B', marginBottom: 2 },
+  metaRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 3 },
+  cardMeta: { flex: 1, fontSize: 13, color: '#64748B' },
   cardFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginTop: 10,
   },
-  cardYear: { fontSize: 12, color: '#94A3B8', fontWeight: '600' },
-  deleteBtn: { paddingHorizontal: 10, paddingVertical: 4 },
-  deleteText: { fontSize: 13, color: '#EF4444', fontWeight: '600' },
-  empty: { textAlign: 'center', color: '#94A3B8', marginTop: 60, fontSize: 15 },
+  yearPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: '#F1F5F9',
+    borderRadius: 8,
+    paddingHorizontal: 9,
+    paddingVertical: 5,
+  },
+  cardYear: { fontSize: 12, color: '#64748B', fontWeight: '700' },
+  deleteBtn: { paddingHorizontal: 8, paddingVertical: 5, flexDirection: 'row', alignItems: 'center', gap: 5 },
+  deleteText: { fontSize: 13, color: '#DC2626', fontWeight: '700' },
+  emptyState: { alignItems: 'center', gap: 10, marginTop: 60 },
+  empty: { textAlign: 'center', color: '#94A3B8', fontSize: 15 },
 });

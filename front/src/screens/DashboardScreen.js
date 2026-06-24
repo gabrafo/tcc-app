@@ -3,10 +3,11 @@ import {
   View, Text, ScrollView, StyleSheet,
   ActivityIndicator, TouchableOpacity, RefreshControl,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { api } from '../services/api';
-import { STATUS_MAP } from '../services/status';
 
-const COLORS = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#EC4899'];
+const COLORS = ['#2563EB', '#059669', '#D97706', '#DC2626', '#7C3AED', '#DB2777'];
+const STATUS_ICONS = ['create-outline', 'send-outline', 'checkmark-circle-outline', 'close-circle-outline'];
 
 function BarChart({ data, label }) {
   if (!data || Object.keys(data).length === 0) return null;
@@ -33,11 +34,16 @@ function BarChart({ data, label }) {
   );
 }
 
-function StatCard({ label, value, color }) {
+function StatCard({ label, value, color, icon = 'document-text-outline' }) {
   return (
-    <View style={[styles.statCard, { borderLeftColor: color }]}>
-      <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
+    <View style={styles.statCard}>
+      <View style={[styles.statIcon, { backgroundColor: `${color}18` }]}>
+        <Ionicons name={icon} size={18} color={color} />
+      </View>
+      <View style={styles.statCopy}>
+        <Text style={styles.statValue}>{value}</Text>
+        <Text style={styles.statLabel}>{label}</Text>
+      </View>
     </View>
   );
 }
@@ -64,13 +70,17 @@ export default function DashboardScreen() {
 
   useEffect(() => { load(); }, []);
 
-  if (loading) return <ActivityIndicator style={styles.center} size="large" color="#3B82F6" />;
+  if (loading) return <ActivityIndicator style={styles.center} size="large" color="#2563EB" />;
 
   if (error) {
     return (
       <View style={styles.center}>
+        <View style={styles.errorIcon}>
+          <Ionicons name="alert-circle-outline" size={26} color="#DC2626" />
+        </View>
         <Text style={styles.errorText}>{error}</Text>
         <TouchableOpacity style={styles.retryBtn} onPress={() => load()}>
+          <Ionicons name="refresh" size={16} color="#FFF" />
           <Text style={styles.retryText}>Tentar novamente</Text>
         </TouchableOpacity>
       </View>
@@ -82,17 +92,27 @@ export default function DashboardScreen() {
   return (
     <ScrollView
       style={styles.container}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load(true)} />}
+      contentContainerStyle={styles.content}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load(true)} tintColor="#2563EB" />}
     >
       <View style={styles.header}>
+        <View style={styles.headerIcon}>
+          <Ionicons name="analytics-outline" size={24} color="#BFDBFE" />
+        </View>
         <Text style={styles.title}>Dashboard</Text>
-        <Text style={styles.subtitle}>Visão geral dos TCCs</Text>
+        <Text style={styles.subtitle}>Acompanhamento geral dos trabalhos</Text>
       </View>
 
       <View style={styles.statGrid}>
-        <StatCard label="Total Geral" value={stats?.total_geral ?? 0} color="#3B82F6" />
+        <StatCard label="Total Geral" value={stats?.total_geral ?? 0} color="#2563EB" icon="albums-outline" />
         {statusEntries.map(([key, val], i) => (
-          <StatCard key={key} label={key} value={val} color={COLORS[i % COLORS.length]} />
+          <StatCard
+            key={key}
+            label={key}
+            value={val}
+            color={COLORS[i % COLORS.length]}
+            icon={STATUS_ICONS[i % STATUS_ICONS.length]}
+          />
         ))}
       </View>
 
@@ -103,46 +123,69 @@ export default function DashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8FAFC' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  container: { flex: 1, backgroundColor: '#F6F8FB' },
+  content: { paddingBottom: 24 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F6F8FB', padding: 24 },
   header: {
-    backgroundColor: '#1E3A5F',
+    backgroundColor: '#0F2742',
     padding: 24,
     paddingTop: 48,
+    paddingBottom: 28,
   },
-  title: { fontSize: 26, fontWeight: '700', color: '#FFF' },
-  subtitle: { fontSize: 14, color: '#93C5FD', marginTop: 4 },
+  headerIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(96, 165, 250, 0.16)',
+    marginBottom: 14,
+  },
+  title: { fontSize: 26, fontWeight: '800', color: '#FFF' },
+  subtitle: { fontSize: 14, color: '#BAE6FD', marginTop: 4 },
 
   statGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    padding: 12,
-    gap: 8,
+    padding: 14,
+    gap: 10,
   },
   statCard: {
     backgroundColor: '#FFF',
-    borderRadius: 10,
-    padding: 16,
-    width: '47%',
-    borderLeftWidth: 4,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    borderRadius: 8,
+    padding: 14,
+    width: '48%',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: '#0F172A',
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 1,
   },
+  statIcon: {
+    width: 34,
+    height: 34,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  statCopy: { gap: 2 },
   statValue: { fontSize: 28, fontWeight: '800', color: '#1E293B' },
   statLabel: { fontSize: 12, color: '#64748B', marginTop: 2 },
 
   chartContainer: {
     backgroundColor: '#FFF',
-    margin: 12,
+    margin: 14,
     marginTop: 0,
-    borderRadius: 12,
+    borderRadius: 8,
     padding: 16,
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: '#0F172A',
+    shadowOpacity: 0.04,
+    shadowRadius: 6,
+    elevation: 1,
   },
   chartTitle: { fontSize: 15, fontWeight: '700', color: '#1E293B', marginBottom: 12 },
   barRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 10 },
@@ -158,7 +201,24 @@ const styles = StyleSheet.create({
   barFill: { height: '100%', borderRadius: 7 },
   barValue: { width: 24, fontSize: 12, fontWeight: '700', color: '#1E293B', textAlign: 'right' },
 
-  errorText: { color: '#EF4444', marginBottom: 12 },
-  retryBtn: { backgroundColor: '#3B82F6', borderRadius: 8, paddingHorizontal: 20, paddingVertical: 10 },
+  errorIcon: {
+    width: 48,
+    height: 48,
+    borderRadius: 8,
+    backgroundColor: '#FEE2E2',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+  },
+  errorText: { color: '#B91C1C', marginBottom: 12, textAlign: 'center' },
+  retryBtn: {
+    backgroundColor: '#2563EB',
+    borderRadius: 8,
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   retryText: { color: '#FFF', fontWeight: '600' },
 });

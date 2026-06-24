@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, TextInput, ScrollView, StyleSheet,
-  TouchableOpacity, Alert, ActivityIndicator, Platform,
+  TouchableOpacity, Alert, ActivityIndicator,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { api } from '../services/api';
 
 // Picker simples sem dependência externa
@@ -19,7 +20,7 @@ function SimplePicker({ label, options, value, onChange, placeholder }) {
         <Text style={[styles.pickerText, !selected && { color: '#94A3B8' }]}>
           {selected ? selected.label : placeholder ?? 'Selecionar...'}
         </Text>
-        <Text style={styles.chevron}>{open ? '▲' : '▼'}</Text>
+        <Ionicons name={open ? 'chevron-up' : 'chevron-down'} size={18} color="#64748B" />
       </TouchableOpacity>
       {open && (
         <View style={styles.dropdown}>
@@ -149,10 +150,10 @@ export default function CadastrarTCCScreen({ route, navigation }) {
     }
   }
 
-  if (loading) return <ActivityIndicator style={styles.center} size="large" color="#3B82F6" />;
+  if (loading) return <ActivityIndicator style={styles.center} size="large" color="#2563EB" />;
 
   return (
-    <ScrollView style={styles.container} keyboardShouldPersistTaps="handled">
+    <ScrollView style={styles.container} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
       <View style={styles.body}>
 
         <Field label="Título" required>
@@ -234,7 +235,9 @@ export default function CadastrarTCCScreen({ route, navigation }) {
 
         <Field label="Arquivo PDF">
           <TouchableOpacity style={styles.uploadBtn} onPress={simularUpload}>
-            <Text style={styles.uploadIcon}>📎</Text>
+            <View style={styles.uploadIcon}>
+              <Ionicons name="attach-outline" size={22} color="#2563EB" />
+            </View>
             <Text style={styles.uploadText}>
               {arquivo ? arquivo.name : 'Selecionar PDF...'}
             </Text>
@@ -251,7 +254,12 @@ export default function CadastrarTCCScreen({ route, navigation }) {
         >
           {saving
             ? <ActivityIndicator color="#FFF" />
-            : <Text style={styles.saveBtnText}>{editando ? 'Salvar alterações' : 'Cadastrar TCC'}</Text>
+            : (
+              <View style={styles.saveContent}>
+                <Ionicons name={editando ? 'save-outline' : 'add-circle-outline'} size={19} color="#FFF" />
+                <Text style={styles.saveBtnText}>{editando ? 'Salvar alterações' : 'Cadastrar TCC'}</Text>
+              </View>
+            )
           }
         </TouchableOpacity>
       </View>
@@ -260,15 +268,16 @@ export default function CadastrarTCCScreen({ route, navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8FAFC' },
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  container: { flex: 1, backgroundColor: '#F6F8FB' },
+  content: { paddingBottom: 8 },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F6F8FB' },
   body: { padding: 16, gap: 4 },
 
   field: { marginBottom: 14 },
   label: { fontSize: 13, fontWeight: '700', color: '#374151', marginBottom: 6 },
   input: {
     backgroundColor: '#FFF',
-    borderRadius: 10,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: '#E2E8F0',
     paddingHorizontal: 14,
@@ -281,7 +290,7 @@ const styles = StyleSheet.create({
   pickerContainer: { marginBottom: 14 },
   pickerBtn: {
     backgroundColor: '#FFF',
-    borderRadius: 10,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: '#E2E8F0',
     paddingHorizontal: 14,
@@ -291,10 +300,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   pickerText: { fontSize: 14, color: '#1E293B', flex: 1 },
-  chevron: { fontSize: 12, color: '#64748B' },
   dropdown: {
     backgroundColor: '#FFF',
-    borderRadius: 10,
+    borderRadius: 8,
     borderWidth: 1,
     borderColor: '#E2E8F0',
     marginTop: 4,
@@ -312,9 +320,9 @@ const styles = StyleSheet.create({
 
   uploadBtn: {
     backgroundColor: '#FFF',
-    borderRadius: 10,
+    borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: '#BFDBFE',
     borderStyle: 'dashed',
     paddingVertical: 16,
     flexDirection: 'row',
@@ -322,18 +330,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
   },
-  uploadIcon: { fontSize: 20 },
-  uploadText: { fontSize: 14, color: '#3B82F6', fontWeight: '600' },
+  uploadIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#EFF6FF',
+  },
+  uploadText: { fontSize: 14, color: '#2563EB', fontWeight: '700' },
   uploadHint: { fontSize: 12, color: '#64748B', marginTop: 4, paddingLeft: 2 },
 
   saveBtn: {
-    backgroundColor: '#1E3A5F',
-    borderRadius: 12,
+    backgroundColor: '#0F2742',
+    borderRadius: 8,
     paddingVertical: 16,
     alignItems: 'center',
     marginTop: 12,
     marginBottom: 32,
   },
   saveBtnDisabled: { opacity: 0.6 },
+  saveContent: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8 },
   saveBtnText: { color: '#FFF', fontSize: 16, fontWeight: '800' },
 });

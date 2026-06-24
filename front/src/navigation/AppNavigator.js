@@ -2,7 +2,8 @@ import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Text } from 'react-native';
+import { Text, View, TouchableOpacity, StyleSheet } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 import DashboardScreen from '../screens/DashboardScreen';
 import TccsScreen from '../screens/TccsScreen';
@@ -14,9 +15,10 @@ const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 const HEADER_STYLE = {
-  headerStyle: { backgroundColor: '#1E3A5F' },
+  headerStyle: { backgroundColor: '#0F2742' },
   headerTintColor: '#FFF',
   headerTitleStyle: { fontWeight: '700' },
+  headerShadowVisible: false,
 };
 
 function TccsStack() {
@@ -38,28 +40,28 @@ function PessoasStack() {
   );
 }
 
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
-
 function MenuPessoas({ navigation }) {
   const items = [
-    { tipo: 'Alunos', icon: '🎓', cor: '#3B82F6' },
-    { tipo: 'Professores', icon: '👨‍🏫', cor: '#10B981' },
-    { tipo: 'Cursos', icon: '📚', cor: '#F59E0B' },
-    { tipo: 'Departamentos', icon: '🏛️', cor: '#8B5CF6' },
-    { tipo: 'Unidades', icon: '🏫', cor: '#EC4899' },
+    { tipo: 'Alunos', icon: 'school-outline', cor: '#2563EB', bg: '#DBEAFE' },
+    { tipo: 'Professores', icon: 'people-outline', cor: '#059669', bg: '#D1FAE5' },
+    { tipo: 'Cursos', icon: 'library-outline', cor: '#D97706', bg: '#FEF3C7' },
+    { tipo: 'Departamentos', icon: 'business-outline', cor: '#7C3AED', bg: '#EDE9FE' },
+    { tipo: 'Unidades', icon: 'home-outline', cor: '#DB2777', bg: '#FCE7F3' },
   ];
   return (
     <View style={ms.container}>
-      {items.map(({ tipo, icon, cor }) => (
+      {items.map(({ tipo, icon, cor, bg }) => (
         <TouchableOpacity
           key={tipo}
           style={[ms.card, { borderLeftColor: cor }]}
           onPress={() => navigation.navigate('ListaGenerica', { tipo })}
           activeOpacity={0.75}
         >
-          <Text style={ms.icon}>{icon}</Text>
+          <View style={[ms.iconBox, { backgroundColor: bg }]}>
+            <Ionicons name={icon} size={22} color={cor} />
+          </View>
           <Text style={ms.label}>{tipo}</Text>
-          <Text style={ms.arrow}>›</Text>
+          <Ionicons name="chevron-forward" size={20} color="#94A3B8" />
         </TouchableOpacity>
       ))}
     </View>
@@ -67,16 +69,27 @@ function MenuPessoas({ navigation }) {
 }
 
 const ms = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8FAFC', padding: 16, gap: 10 },
+  container: { flex: 1, backgroundColor: '#F6F8FB', padding: 16, gap: 10 },
   card: {
-    backgroundColor: '#FFF', borderRadius: 12, padding: 18,
+    backgroundColor: '#FFF', borderRadius: 8, padding: 16,
     flexDirection: 'row', alignItems: 'center', gap: 14,
     borderLeftWidth: 4,
-    shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 4, elevation: 1,
+    borderTopWidth: 1,
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
+    borderTopColor: '#E2E8F0',
+    borderRightColor: '#E2E8F0',
+    borderBottomColor: '#E2E8F0',
+    shadowColor: '#0F172A', shadowOpacity: 0.04, shadowRadius: 6, elevation: 1,
   },
-  icon: { fontSize: 26 },
+  iconBox: {
+    width: 42,
+    height: 42,
+    borderRadius: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   label: { flex: 1, fontSize: 16, fontWeight: '700', color: '#1E293B' },
-  arrow: { fontSize: 24, color: '#CBD5E1' },
 });
 
 export default function AppNavigator() {
@@ -85,24 +98,30 @@ export default function AppNavigator() {
       <Tab.Navigator
         screenOptions={({ route }) => ({
           headerShown: false,
-          tabBarActiveTintColor: '#1E3A5F',
+          tabBarActiveTintColor: '#0F2742',
           tabBarInactiveTintColor: '#94A3B8',
           tabBarStyle: {
+            height: 64,
             borderTopWidth: 1,
             borderTopColor: '#E2E8F0',
             backgroundColor: '#FFF',
-            paddingBottom: 4,
+            paddingTop: 6,
+            paddingBottom: 8,
           },
           tabBarLabel: ({ focused, color }) => (
             <Text style={{ fontSize: 11, color, fontWeight: focused ? '700' : '500' }}>
               {route.name === 'Dashboard' ? 'Dashboard'
                 : route.name === 'TCCs' ? 'TCCs'
-                : 'Cadastros'}
+              : 'Cadastros'}
             </Text>
           ),
-          tabBarIcon: ({ focused }) => {
-            const map = { Dashboard: '📊', TCCs: '📄', Cadastros: '👥' };
-            return <Text style={{ fontSize: focused ? 24 : 20 }}>{map[route.name]}</Text>;
+          tabBarIcon: ({ focused, color }) => {
+            const map = {
+              Dashboard: focused ? 'grid' : 'grid-outline',
+              TCCs: focused ? 'document-text' : 'document-text-outline',
+              Cadastros: focused ? 'people' : 'people-outline',
+            };
+            return <Ionicons name={map[route.name]} size={focused ? 24 : 22} color={color} />;
           },
         })}
       >
