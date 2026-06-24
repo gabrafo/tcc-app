@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+.Python
+.pytest_cache/
+.venv/
+venv/
+db.sqlite3
+media/
+Dockerfile
+.dockerignore
