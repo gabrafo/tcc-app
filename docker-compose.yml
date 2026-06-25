@@ -1,9 +1,26 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: "${DB_NAME}"
+      POSTGRES_USER: "${DB_USER}"
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "${DB_PORT:-5432}:5432"
+
   backend:
     build:
       context: ./back/projeto-gestao-tccs
       network: host
     network_mode: host
+    env_file:
+      - .env
+    depends_on:
+      - postgres
     environment:
       LOAD_INITIAL_DATA: "1"
       BACKEND_PORT: "${BACKEND_PORT:-8001}"
@@ -34,5 +51,6 @@ services:
     tty: true
 
 volumes:
+  postgres_data:
   sqlite_data:
   backend_media:

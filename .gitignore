@@ -12,3 +12,4 @@ back/projeto-gestao-tccs/media/
 
 .DS_Store
 *.log
+.env
