@@ -96,8 +96,14 @@ export default function DashboardScreen() {
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={() => load(true)} tintColor="#2563EB" />}
     >
       <View style={styles.header}>
-        <View style={styles.headerIcon}>
-          <Ionicons name="analytics-outline" size={24} color="#BFDBFE" />
+        <View style={styles.headerTop}>
+          <View style={styles.headerIcon}>
+            <Ionicons name="analytics-outline" size={24} color="#BFDBFE" />
+          </View>
+          <View style={styles.totalBadge}>
+            <Text style={styles.totalBadgeValue}>{stats?.total_geral ?? 0}</Text>
+            <Text style={styles.totalBadgeLabel}>TCCs</Text>
+          </View>
         </View>
         <Text style={styles.title}>Dashboard</Text>
         <Text style={styles.subtitle}>Acompanhamento geral dos trabalhos</Text>
@@ -130,17 +136,34 @@ const styles = StyleSheet.create({
     backgroundColor: '#0F2742',
     padding: 24,
     paddingTop: 48,
-    paddingBottom: 28,
+    paddingBottom: 32,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
+  },
+  headerTop: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 14,
   },
   headerIcon: {
     width: 44,
     height: 44,
-    borderRadius: 8,
+    borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(96, 165, 250, 0.16)',
-    marginBottom: 14,
   },
+  totalBadge: {
+    backgroundColor: 'rgba(255,255,255,0.12)',
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    alignItems: 'center',
+    minWidth: 64,
+  },
+  totalBadgeValue: { fontSize: 22, fontWeight: '800', color: '#FFF' },
+  totalBadgeLabel: { fontSize: 11, color: '#BAE6FD', fontWeight: '600' },
   title: { fontSize: 26, fontWeight: '800', color: '#FFF' },
   subtitle: { fontSize: 14, color: '#BAE6FD', marginTop: 4 },
 
@@ -152,15 +175,15 @@ const styles = StyleSheet.create({
   },
   statCard: {
     backgroundColor: '#FFF',
-    borderRadius: 8,
+    borderRadius: 12,
     padding: 14,
     width: '48%',
     borderWidth: 1,
     borderColor: '#E2E8F0',
     shadowColor: '#0F172A',
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
-    elevation: 1,
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+    elevation: 2,
   },
   statIcon: {
     width: 34,

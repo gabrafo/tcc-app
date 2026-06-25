@@ -50,6 +50,7 @@ function MenuPessoas({ navigation }) {
   ];
   return (
     <View style={ms.container}>
+      <Text style={ms.intro}>Consulte alunos, professores e estrutura acadêmica.</Text>
       {items.map(({ tipo, icon, cor, bg }) => (
         <TouchableOpacity
           key={tipo}
@@ -70,8 +71,14 @@ function MenuPessoas({ navigation }) {
 
 const ms = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F6F8FB', padding: 16, gap: 10 },
+  intro: {
+    fontSize: 14,
+    color: '#64748B',
+    lineHeight: 20,
+    marginBottom: 4,
+  },
   card: {
-    backgroundColor: '#FFF', borderRadius: 8, padding: 16,
+    backgroundColor: '#FFF', borderRadius: 12, padding: 16,
     flexDirection: 'row', alignItems: 'center', gap: 14,
     borderLeftWidth: 4,
     borderTopWidth: 1,

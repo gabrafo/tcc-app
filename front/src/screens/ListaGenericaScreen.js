@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import {
   View, Text, FlatList, StyleSheet,
-  ActivityIndicator, TextInput, RefreshControl,
+  ActivityIndicator, RefreshControl,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { api } from '../services/api';
+import SearchBar from '../components/SearchBar';
 
 const CONFIGS = {
   Alunos: {
@@ -85,16 +86,15 @@ export default function ListaGenericaScreen({ route }) {
 
   return (
     <View style={styles.container}>
-      <View style={styles.searchWrap}>
-        <Ionicons name="search-outline" size={18} color="#64748B" />
-        <TextInput
-          style={styles.search}
-          placeholder={`Buscar ${tipo.toLowerCase()}...`}
-          placeholderTextColor="#94A3B8"
-          value={search}
-          onChangeText={handleSearch}
-        />
-      </View>
+      <SearchBar
+        style={styles.searchBar}
+        value={search}
+        onChangeText={handleSearch}
+        placeholder={`Buscar ${tipo.toLowerCase()}...`}
+      />
+      <Text style={styles.resultCount}>
+        {filtered.length} {filtered.length === 1 ? 'resultado' : 'resultados'}
+      </Text>
       <FlatList
         data={filtered}
         keyExtractor={item => String(item.id)}
@@ -127,23 +127,17 @@ export default function ListaGenericaScreen({ route }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#F6F8FB' },
   center: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#F6F8FB' },
-  searchWrap: {
+  searchBar: {
     margin: 12,
     marginBottom: 4,
     backgroundColor: '#FFF',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    paddingHorizontal: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
   },
-  search: {
-    flex: 1,
-    paddingVertical: 11,
-    fontSize: 14,
-    color: '#1E293B',
+  resultCount: {
+    paddingHorizontal: 16,
+    paddingBottom: 4,
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#64748B',
   },
   listContent: { padding: 12, gap: 8, paddingBottom: 24 },
   card: {
