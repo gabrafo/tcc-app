@@ -10,7 +10,7 @@ O backend Django REST Framework já havia sido desenvolvido pelos professores e 
 - `front`: aplicativo React Native com Expo.
 - `docker-compose.yml`: sobe backend, frontend e banco SQLite persistido em volume.
 
-O backend continua usando SQLite. O banco fica no volume Docker `sqlite_data`, e os arquivos enviados ficam no volume `backend_media`.
+O backend usa postgresql como banco preferido, caso não sejam encontradas as credenciais, é usado SQLite. O banco fica no volume Docker `sqlite_data`, e os arquivos enviados ficam no volume `backend_media`.
 
 ## Pré-requisitos
 
